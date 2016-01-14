@@ -115,6 +115,7 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
@@ -355,10 +356,10 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 			sheet.protectSheet(password);
 		}
 		
-		sheet.setMargin(Sheet.LeftMargin, 0.0);
-		sheet.setMargin(Sheet.RightMargin, 0.0);
-		sheet.setMargin(Sheet.TopMargin, 0.0);
-		sheet.setMargin(Sheet.BottomMargin, 0.0);
+		sheet.setMargin(Sheet.LeftMargin, (double)pageFormat.getLeftMargin() / 72.0d);
+		sheet.setMargin(Sheet.RightMargin, (double)pageFormat.getRightMargin() / 72.0d);
+		sheet.setMargin(Sheet.TopMargin, (double)pageFormat.getTopMargin() / 72.0);
+		sheet.setMargin(Sheet.BottomMargin, (double)pageFormat.getBottomMargin() / 72.0d);
 
 		String sheetHeaderLeft = configuration.getSheetHeaderLeft();
 		if(sheetHeaderLeft != null)
@@ -1822,20 +1823,24 @@ public class JRXlsExporter extends JRXlsAbstractExporter<XlsReportConfiguration,
 			// Compare to ISO 216 A-Series (A3-A5). All other ISO 216 formats
 			// not supported by POI Api yet.
 			// A3 papersize also not supported by POI Api yet.
-			for (int i = 4; i < 6; i++)
+			for (int i = 3; i < 6; i++)
 			{
 				int w = calculateWidthForDinAN(i);
 				int h = calculateHeightForDinAN(i);
 
 				if (((w == width) && (h == height)) || ((h == width) && (w == height)))
 				{
-					if (i == 4)
+					switch(i)
 					{
+					case 3:
+						ps = PrintSetup.A3_PAPERSIZE;
+						break;
+					case 4:
 						ps = HSSFPrintSetup.A4_PAPERSIZE;
-					}
-					else if (i == 5)
-					{
+						break;
+					case 5:
 						ps = HSSFPrintSetup.A5_PAPERSIZE;
+						break;
 					}
 					break;
 				}
